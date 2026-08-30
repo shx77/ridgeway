@@ -127,23 +127,3 @@ Fix: pre-aggregate touches to account grain before joining, group by `account_id
 
 
 
-## How I tested this
-
-Wrote it, then tested every claim instead of trusting it. My first AI-assisted pass at the Python validator described the `D-1045` problem correctly in words but didn't actually catch it in code, which is exactly the kind of gap you only find by running the thing.
-
-- `pytest tests/ -v`: 9 tests, one per edge case, all passing.
-- Ran the real schema and transform against a local SQL Server instance, seeded with the 3 rows the validator actually produces plus two extra deals (so at least one account has more than one deal, otherwise the fan-out bug has nothing to bite on):
-
-```sql
-INSERT INTO stg_crm_deals (deal_id, account_id, stage, deal_value, opened_date, close_date, updated_date) VALUES
-    ('D-1041','ACC-207','Proposal',18500,'2026-01-14','2026-03-02','2026-03-02'),
-    ('D-1043','ACC-311','Negotiation',42000,'2026-02-03',NULL,'2026-03-01'),
-    ('D-1046','ACC-118','Proposal',15000,'2026-02-14','2026-04-01','2026-03-03'),
-    ('D-2001','ACC-207','Negotiation',9000,'2026-02-01',NULL,'2026-03-05'),
-    ('D-2002','ACC-118','Discovery',6000,'2026-02-10',NULL,'2026-03-04');
-```
-
-  Running the original buggy query against that: `ACC-118` and `ACC-207` both show up twice, each row claiming the account's *full* touch count rather than a share of it. So the fan-out isn't theoretical, I watched it happen. The fixed query returns exactly one row per account, matching the real counts.
-
-- **At scale:** generated ~20,000 synthetic deals and a million synthetic touches to see if this holds up at something closer to production volume. It does: the buggy query returned 2,783 rows for what should've been 2,307 distinct accounts, and 453 accounts (about 1 in 5 active that year) would show a doubled touch count if a dashboard summed the buggy output to account level. With an index on `updated_date`, the execution plan confirmed the mechanism behind the runtime directly: the range filter seeks the index, `YEAR(...)` still forces a full scan on the exact same index. Invisible at 20K rows, but that gap is exactly what turns into two hours once the table's real-world sized.
-
