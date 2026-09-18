@@ -97,7 +97,7 @@ flowchart TD
 
 
 
-*(if this lands in a Google Doc instead of GitHub, the diagram won't render. Happy to swap it for a screenshot.)*
+
 
 Re-running the same night twice is safe: the MERGE keys on `(account_id, load_date)`, so it overwrites rather than duplicates.
 
