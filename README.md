@@ -5,7 +5,7 @@
 - Target table is one row per account per night, with deal value split into open/won/lost instead of one blended number. "Pipeline" should mean live deals, not everything that ever happened.
 - The nastiest row in the sample CSV isn't a "dirty data" problem, it's a broken-column problem (an unescaped comma shifts every field after it). I quarantine it instead of guessing. Worth the two minutes to read why, below.
 - The slow, wrong Question 2 query had three separate bugs stacked on each other, not one. Fixing only the obvious one wouldn't have fixed the other two.
-- Everything here was actually run against a real SQL Server instance and tested with pytest, not just written and hoped for. Real numbers at the bottom.
+- Everything here was actually run against a real SQL Server instance, not just written and hoped for. Real numbers at the bottom.
 
 
 
