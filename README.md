@@ -47,7 +47,7 @@ if len(fields) != len(header):
     continue
 ```
 
-Same pattern for everything else: missing `account_id`/`deal_id`, a `Closed Won` deal with no value (flagged, not defaulted to $0), dates in either format normalized or quarantined if neither parses. Full logic in `python/validate_crm.py`, tests in `tests/test_validate_crm.py`.
+Same pattern for everything else: missing `account_id`/`deal_id`, a `Closed Won` deal with no value (flagged, not defaulted to $0), dates in either format normalized or quarantined if neither parses. Full logic in `python/validate_crm.py`
 
 ### 3. DAX measure
 
